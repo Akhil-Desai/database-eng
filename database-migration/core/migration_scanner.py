@@ -2,12 +2,15 @@ import os
 import re
 import hashlib
 from pathlib import Path
-from typing import List,Dict,Any
+from typing import List, Dict, Any
+from .version_manager import VersionManager
+
 
 class MigrationScanner:
 
     def __init__(self, migration_dir: str) -> None:
         self.migration_dir = migration_dir
+        self.version_manager = VersionManager()
 
     def discover_migrations(self) -> List[Dict[str,Any]]:
 
@@ -15,12 +18,12 @@ class MigrationScanner:
 
         migration_files = Path(self.migration_dir).glob('V*__*.sql')
 
-        sorted_files = sorted(migration_files, key=lambda p: int(re.match(r'V(\d+)__', p.name).group(1)))
+        sorted_files = self.version_manager.order_migrations(migration_files)
 
         for file_path in sorted_files:
             #Extract Version and description
 
-            match = re.match(r'V(\d+)__(.+)\.sql', file_path.name)
+            match = re.match(r'V(\d+(?:\.\d+)?)__(.+)\.sql', file_path.name)
             if not match:
                 continue
 
