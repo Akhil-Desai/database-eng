@@ -44,4 +44,7 @@ def clean_db(db_config):
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
-    # Yield
+
+    yield
+    
+    registry.initialize()

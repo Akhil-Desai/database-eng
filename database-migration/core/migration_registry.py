@@ -8,12 +8,10 @@ class MigrationRegistry:
         self.db_config = db_config
         self.db_type = db_config.get('type', 'postgresql')
 
-    def initialize(self) -> str:
+    def initialize(self) -> None:
 
         conn = self._get_connection()
         cursor = conn.cursor()
-
-        ret = ""
 
         if self.db_type == 'postgresql':
             try:
@@ -32,7 +30,6 @@ class MigrationRegistry:
                             UNIQUE(version)
                             );
                         """)
-                ret = "Applied"
             except psycopg2.error as e:
                 print("Error", e)
                 raise
@@ -41,7 +38,6 @@ class MigrationRegistry:
         cursor.close()
         conn.close()
 
-        return ret
 
 
     def record_migration(self, migration: Dict[str,any], execution_time: str, status: str, applied_by='system') -> None:
