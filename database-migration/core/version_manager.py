@@ -16,10 +16,10 @@ class VersionManager:
         file_object: object
             A Path Object
         """
-        if file_object.suffix != 'sql':
+        if file_object.suffix != '.sql':
             raise ValueError("File type must be sql")
 
-        return f'V{time.time()}__{file_object.name}.{file_object.suffix}'
+        return f'V{time.time()}__{file_object.name}'
 
     def extract_version(self, file_name: str) -> float:
         """

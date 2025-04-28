@@ -74,9 +74,10 @@ class MigrationRunner:
                 print(f"Applying migration {migration['version']}...")
 
                 try:
-                    with open(migration["filepath"], 'r') as file:
+                    with open(migration["path"], 'r') as file:
                         sql_statements = file.read()
 
+                    print(sql_statements)
 
                     start = time.time()
                     cursor.execute(sql_statements)

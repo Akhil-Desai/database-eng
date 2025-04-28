@@ -16,7 +16,7 @@ class MigrationScanner:
 
         migrations = []
 
-        migration_files = Path(self.migration_dir).glob('V*__*.sql')
+        migration_files = Path(self.migration_dir).glob('V*.*__*.sql')
 
         sorted_files = self.version_manager.order_migrations(migration_files)
 
