@@ -1,3 +1,9 @@
+"""
+conftest.py
+-----------
+Pytest fixtures for database configuration and cleaning the test database before each test.
+"""
+
 import pytest
 import psycopg2
 import os
@@ -11,6 +17,11 @@ DB_PASS = os.getenv("DB_PASSWORD")
 
 @pytest.fixture
 def db_config():
+    """
+    Fixture providing database configuration for tests.
+    Returns:
+        dict: Database configuration dictionary.
+    """
     return {
         'type': 'postgresql',
         'dbname': 'postgres',
@@ -19,9 +30,12 @@ def db_config():
         'port':"5432",
     }
 
-@pytest.fixture(scope="function") # Run before each test function using it
+@pytest.fixture(scope="function")
 def clean_db(db_config):
-    """Fixture to ensure the test database is clean before the test."""
+    """
+    Fixture to ensure the test database is clean before each test.
+    Drops user, product, and migration tables if they exist, then re-initializes the registry after the test.
+    """
     registry = MigrationRegistry(db_config)
     conn = None
     cursor = None
@@ -46,5 +60,5 @@ def clean_db(db_config):
         if conn: conn.close()
 
     yield
-    
+
     registry.initialize()
