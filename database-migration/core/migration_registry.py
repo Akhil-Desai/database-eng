@@ -90,4 +90,5 @@ class MigrationRegistry:
             db_config_no_type = {k:v for k,v in self.db_config.items() if k != "type"}
             return psycopg2.connect(**db_config_no_type)
         elif self.db_type == 'mysql':
+            db_config_no_type = {k:v for k,v in self.db_config.items() if k != "type"}
             return mysql.connector.connect(**self.db_config)

@@ -13,7 +13,7 @@ class MigrationRunner:
     """
     Handles the discovery, filtering, and application of migration files to the database.
     """
-    def __init__(self, migration_dir, db_config) -> None:
+    def __init__(self, migration_dir, migration_registry: MigrationRegistry) -> None:
         """
         Initialize the MigrationRunner.
 
@@ -22,7 +22,7 @@ class MigrationRunner:
             db_config (dict): Database configuration dictionary.
         """
         self.migration_dir = migration_dir
-        self.migration_registry = MigrationRegistry(db_config)
+        self.migration_registry = migration_registry
 
     def get_applied_migrations(self) -> dict:
         """

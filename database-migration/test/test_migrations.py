@@ -54,7 +54,10 @@ def test_find_migrations(db_config, clean_db):
     """
     Test that the migration runner can find migrations to apply.
     """
-    migration_runner = MigrationRunner(migration_dir="migrations", db_config=db_config)
+
+    migration_registry = MigrationRegistry(db_config)
+
+    migration_runner = MigrationRunner(migration_registry=migration_registry, migration_dir="migrations")
 
     migration_files = migration_runner.get_migrations_to_apply()
 
@@ -68,6 +71,8 @@ def test_apply_migrations(db_config, clean_db):
     """
     Test that all pending migrations are applied successfully.
     """
-    migration_runner = MigrationRunner(migration_dir="migrations", db_config=db_config)
+    migration_registry = MigrationRegistry(db_config)
+
+    migration_runner = MigrationRunner(migration_dir="migrations", migration_registry = migration_registry)
 
     assert migration_runner.run_migrations() == "Migrations Applied"
