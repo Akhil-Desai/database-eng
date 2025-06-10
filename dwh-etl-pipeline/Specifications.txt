@@ -1,0 +1,37 @@
+Objective: Build an ETL pipeline that extracts data from various sources and stores it in a data lake
+------
+
+Data Selection of Choice: EPL Leauge
+
+Core Parts:
+
+Data sources
+    - Scope
+        - API, Database, CSV
+
+    - Interfaces to be able to dynamically select which API, CSV, or Database to pull from
+        - Data validation here
+
+Aggregation and Cleaning Pipeline
+
+    - Cleaning
+        - Pandas
+    - Deduplication
+        - Pandas
+    - Aggregation
+        - Pandas
+    - Translation to a suitable format
+
+Batch Processing
+
+    - Time-based scheduling
+    - Data size-based scheduling
+    *Cron for Mac*
+
+Data Lake (Depositing Data)
+
+---------
+
+Architecture
+
+Data Sources --> Aggregation/Cleaning/Batch Processing --> AWS S3 --> AWS Glue Crawler --> Amazon Athena

@@ -12,7 +12,7 @@ import time
 class MigrationRunner:
     """
     Handles the discovery, filtering, and application of migration files to the database.
-    """
+    """ 
     def __init__(self, migration_dir, migration_registry: MigrationRegistry) -> None:
         """
         Initialize the MigrationRunner.
