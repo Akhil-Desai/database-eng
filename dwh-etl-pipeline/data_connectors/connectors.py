@@ -3,7 +3,10 @@ import requests
 import logging
 import csv
 from typing import *
+from utils.db_utils import get_connection
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+#TODO: Make These Async
 class DataConnectors:
 
     def __init__(self,data_config):
@@ -49,7 +52,7 @@ class DataConnectors:
                 text_data = res.text
                 return text_data, (offset[1] + limit[1])
             except Exception as e2:
-                logging.error(f'Error fetching as text {e2}')
+                logging.exception(f'Error fetching as text {e2}')
                 return
 
     def csv_connector(
@@ -88,10 +91,49 @@ class DataConnectors:
 
             return csv_data,(offset + limit)
         except Exception as e:
-            logging.error(f'Error reading from csv {e}')
+            logging.exception(f'Error reading from csv {e}')
             return [], None
 
 
-    def db_connector():
-        #This in itself might have multiple db configs -- have to adress this
-        pass
+    def db_connector(
+            self,
+            selected_tables: List[Tuple[str,int,int]],
+            _max_workers: int = 10
+    ):
+        """
+        Fetches data from selected tables in a database -- supports mysql and postgres
+
+        Args:
+            selected_tables ( List[Tuple[str,int,int]] ): A list specifying a table and each of its limits and offsets respectively
+            _max_workers(int): Internal argument to cap max threads spun up to read multiple tables
+
+        Returns:
+            List of fetched data and its offset
+        """
+
+        def worker(args: Tuple[str,int,int]):
+            table_name,limit,offset = args[0], args[1],args[2]
+            try:
+                conn = get_connection(self.config)
+                cursor = conn.cursor()
+                cursor.execute(f'SELECT * from {table_name} LIMIT {limit} OFFSET {offset}')
+                rows = cursor.fetchall()
+                conn.close()
+            except Exception as e:
+                logging.exception(f'Issue fetching from Tables...{e}')
+            return rows, limit + offset
+
+        try:
+
+            task = []
+            for tbl,limit,offset in selected_tables:
+                task.append( (tbl,limit,offset) )
+
+            with ThreadPoolExecutor(max_workers=_max_workers) as executor:
+                res = list(executor.map(worker, task))
+
+            return res
+
+        except Exception as e1:
+            logging.exception(f'Issue with worker threads {e1}')
+            return

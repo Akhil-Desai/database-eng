@@ -1,5 +1,3 @@
-
-
 class DataLake:
 
     def __init__(self, DL_config):
