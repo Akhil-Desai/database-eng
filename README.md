@@ -13,4 +13,4 @@ Welcome to the **Database Infrastructure** repository! This collection is my per
 
 ---
 
-> ✨ This is a personal learning repo, but suggestions and feedback are always welcome!
+> ✨Feel free to contribute, suggest improvements, or ask questions via issues or pull requests!
