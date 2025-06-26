@@ -13,22 +13,4 @@ Welcome to the **Database Infrastructure** repository! This collection is my per
 
 ---
 
-## 🗄️ database-migration
-
-**Description:** Python tool for managing and applying database schema migrations (PostgreSQL & MySQL).
-
-**Learning Goal:**
-- How to design and implement a migration tool from scratch
-- Schema versioning and safe migration practices
-- Writing Python code that interacts with PostgreSQL & MySQL
-- Building robust, testable, and extensible infrastructure code
-
----
-
-## 🧑‍💻 Getting Started
-1. Clone the repository
-2. Dive into each project directory to see what I'm experimenting with and learning
-
----
-
 > ✨ This is a personal learning repo, but suggestions and feedback are always welcome!
