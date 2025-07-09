@@ -1,18 +1,17 @@
 #We can connect to an API, Database, File Reader
-import requests
+import httpx
 import logging
 import csv
 from typing import *
 from utils.db_utils import get_connection
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-#TODO: Make These Async
 class DataConnectors:
 
     def __init__(self,data_config):
         self.config = data_config
 
-    def api_connector(
+    async def api_connector(
         self,
         endpoint: str,
         offset: tuple[str,int],
@@ -38,22 +37,20 @@ class DataConnectors:
         params = {offset[0]: offset[1], limit[0]: min(limit[1], _max_limit)}
 
         try:
-            res = requests.get(endpoint, params, timeout=_timeout)
-            json_data = res.json()
-            if res.status_code in [500,503,403,404,401,400]:
-                logging.error(f'Bad status code: {res.status_code}')
-                raise ValueError("JSON object not returned")
-
-            return json_data, (offset[1] + limit[1])
-        except Exception as e:
-            logging.warning(f'Invalid JSON returned from API, trying as text...{e}')
+            async with httpx.AsyncClient() as client:
+                res = await client.get(endpoint, params, timeout=_timeout)
+            res.raise_for_status()
             try:
-                #I want to test this and see what it returns, Looks like it structures it as a dict based on docs
+                json_data = res.json()
+                return json_data, (offset[1] + limit[1])
+            except ValueError as ve:
+                logging.warning(f'Invalid JSON returned from API, trying as text...{ve}')
                 text_data = res.text
                 return text_data, (offset[1] + limit[1])
-            except Exception as e2:
-                logging.exception(f'Error fetching as text {e2}')
-                return
+
+        except Exception as e:
+            logging.exception(f'Error fetching from API: {e}')
+            return
 
     def csv_connector(
         self,
