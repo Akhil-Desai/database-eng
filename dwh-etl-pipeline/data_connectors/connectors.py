@@ -8,8 +8,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class DataConnectors:
 
-    def __init__(self,data_config):
-        self.config = data_config
+    def __init__(self):
+        pass
 
     async def api_connector(
         self,
@@ -44,7 +44,7 @@ class DataConnectors:
                 json_data = res.json()
                 return json_data, (offset[1] + limit[1])
             except ValueError as ve:
-                logging.warning(f'Invalid JSON returned from API, trying as text...{ve}')
+                logging.warning(f'Invalid JSON returned from API, returning as text...{ve}')
                 text_data = res.text
                 return text_data, (offset[1] + limit[1])
 
