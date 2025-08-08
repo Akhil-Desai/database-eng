@@ -2,9 +2,10 @@
 import httpx
 import logging
 import csv
+import aiofiles
+import asyncpg
 from typing import *
 from utils.db_utils import get_connection
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class DataConnectors:
 
@@ -52,7 +53,7 @@ class DataConnectors:
             logging.exception(f'Error fetching from API: {e}')
             return
 
-    def csv_connector(
+    async def csv_connector(
         self,
         file_path: str,
         offset: int,
@@ -75,15 +76,13 @@ class DataConnectors:
         csv_data = []
         limit = min(_max_limit,limit)
         try:
-            with open(file_path, 'r', newline='') as csvfile:
-                reader = csv.DictReader(csvfile)
-
+            async with aiofiles.open(file_path, 'r', newline='') as csvfile:
+                content = await csvfile.read()
+                reader = csv.DictReader(content.splitlines())
                 for _ in range(offset):
                     next(reader, None)
-
                 for i,row in enumerate(reader):
                     if i >= limit: break
-
                     csv_data.append(row)
 
             return csv_data,(offset + limit)
@@ -92,45 +91,30 @@ class DataConnectors:
             return [], None
 
 
-    def db_connector(
-            self,
-            selected_tables: List[Tuple[str,int,int]],
-            _max_workers: int = 10
+    async def db_connector(
+        self,
+        selected_table: Tuple[str,int,int],
+        db_config
     ):
         """
         Fetches data from selected tables in a database -- supports mysql and postgres
 
         Args:
-            selected_tables ( List[Tuple[str,int,int]] ): A list specifying a table and each of its limits and offsets respectively
+            selected_table ( Tuple[str,int,int] ):  a table and each of its limits and offsets respectively
             _max_workers(int): Internal argument to cap max threads spun up to read multiple tables
 
         Returns:
             List of fetched data and its offset
         """
-
-        def worker(args: Tuple[str,int,int]):
-            table_name,limit,offset = args[0], args[1],args[2]
-            try:
-                conn = get_connection(self.config)
-                cursor = conn.cursor()
-                cursor.execute(f'SELECT * from {table_name} LIMIT {limit} OFFSET {offset}')
-                rows = cursor.fetchall()
-                conn.close()
-            except Exception as e:
-                logging.exception(f'Issue fetching from Tables...{e}')
-            return rows, limit + offset
+        table_name,limit,offset = selected_table
 
         try:
+            conn = asyncpg.connect(**db_config)
+            rows = await conn.fetch(f'SELECT * FROM {table_name} LIMIT {limit} OFFSET {offset}')
+            await conn.close()
 
-            task = []
-            for tbl,limit,offset in selected_tables:
-                task.append( (tbl,limit,offset) )
+            return rows, limit + offset
 
-            with ThreadPoolExecutor(max_workers=_max_workers) as executor:
-                res = list(executor.map(worker, task))
-
-            return res
-
-        except Exception as e1:
-            logging.exception(f'Issue with worker threads {e1}')
-            return
+        except Exception as e:
+            logging.exception(f'error retrieving from {table_name}')
+            return [],None

@@ -1,3 +1,5 @@
-requests
-pandas
-httpx
+aiofiles==24.1.0
+asyncpg==0.30.0
+httpx==0.28.1
+mysql_connector_repackaged==0.3.1
+psycopg2-binary==2.9.10
