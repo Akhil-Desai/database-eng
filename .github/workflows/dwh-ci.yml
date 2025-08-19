@@ -17,8 +17,23 @@ jobs:
           with:
             python-version: '3.12.0'
 
+        - name: Install dependencies
+          run: |
+            echo "Installing project dependencies...⚙️"
+            pip install -r requirements.txt
+            
+          working-directory: dwh-etl-pipeline
+          
+
         - name: Build
           run: |
             echo "Building...🔨"
             python main.py
+          working-directory: dwh-etl-pipeline
+
+        - name: Test
+          run: |
+            echo "Running test...🧪"
+            pytest
+
           working-directory: dwh-etl-pipeline
