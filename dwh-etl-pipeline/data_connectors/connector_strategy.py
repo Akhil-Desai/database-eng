@@ -1,4 +1,4 @@
-from connectors import DataConnectors
+from .connectors import DataConnectors
 from enum import Enum
 
 class Strategies(Enum):
@@ -6,18 +6,19 @@ class Strategies(Enum):
     CSV = "CSV"
     DB = "DB"
 
-class ConnectorStrategy(DataConnectors):
+class ConnectorStrategy():
 
     def __init__(self):
         self.strategy = None
 
     def set_strategy(self, strat: Strategies):
+        connector_methods = DataConnectors()
         if strat == Strategies.API:
-            self.strategy = self.api_connector
+            self.strategy = connector_methods.api_connector
         elif strat == Strategies.CSV:
-            self.strategy = self.csv_connector
+            self.strategy = connector_methods.csv_connector
         elif strat == Strategies.DB:
-            self.strategy = self.db_connector
+            self.strategy = connector_methods.db_connector
         else:
             raise ValueError("Unknown strategy")
 

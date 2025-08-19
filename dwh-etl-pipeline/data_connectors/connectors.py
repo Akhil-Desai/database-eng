@@ -5,7 +5,6 @@ import csv
 import aiofiles
 import asyncpg
 from typing import *
-from utils.db_utils import get_connection
 
 class DataConnectors:
 
@@ -34,6 +33,8 @@ class DataConnectors:
         Returns:
             Tuple[Optional[Any], int]: (data, next_offset)
         """
+        if offset is None:
+            raise Exception("offset can not be set to none")
 
         params = {offset[0]: offset[1], limit[0]: min(limit[1], _max_limit)}
 
