@@ -22,6 +22,9 @@ class ConnectorStrategy():
         else:
             raise ValueError("Unknown strategy")
 
+    def clear_strategy(self):
+        self.strategy = None
+
     def execute(self, *args, **kwargs):
         if not self.strategy:
             raise Exception("Strategy not set")

@@ -31,7 +31,7 @@ class DataConnectors:
             timeout (int): Timeout for the request in seconds.
 
         Returns:
-            Tuple[Optional[Any], int]: (data, next_offset)
+            Tuple[Optional[Any], int, int]: (data, next_offset, status_code)
         """
         if offset is None:
             raise Exception("offset can not be set to none")
@@ -44,11 +44,11 @@ class DataConnectors:
             res.raise_for_status()
             try:
                 json_data = res.json()
-                return json_data, (offset[1] + limit[1])
+                return json_data, (offset[1] + limit[1]), res.status_code
             except ValueError as ve:
                 logging.warning(f'Invalid JSON returned from API, returning as text...{ve}')
                 text_data = res.text
-                return text_data, (offset[1] + limit[1])
+                return text_data, (offset[1] + limit[1]), res.status_code
 
         except Exception as e:
             logging.exception(f'Error fetching from API: {e}')

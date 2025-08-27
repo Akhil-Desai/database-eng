@@ -10,12 +10,11 @@ Data sources
         - API, Database, CSV
 
     - Interfaces to be able to dynamically select which API, CSV, or Database to pull from
-        - Data validation here
 
 Aggregation and Cleaning Pipeline
 
     - Cleaning
-        - Pandas
+        - Pandas,Data validation here
     - Deduplication
         - Pandas
     - Aggregation
@@ -28,7 +27,7 @@ Batch Processing
     - Data size-based scheduling
     *Cron for Mac*
 
-Data Lake (Depositing Data)
+Data Lake (Depositing Data), should learn how to use Snowflake here or an OLTP Database
 
 ---------
 
