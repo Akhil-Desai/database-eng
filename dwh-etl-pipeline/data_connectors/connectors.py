@@ -14,11 +14,11 @@ class DataConnectors:
     async def api_connector(
         self,
         endpoint: str,
-        offset: tuple[str,int],
-        limit: tuple[str,int],
+        offset: tuple[str,int] = ('page',0),
+        limit: tuple[str,int] = ('size',1),
         _max_limit: int = 100,
-        _timeout: int = 10,
-    ) -> Tuple[Optional[Any], int]:
+        _timeout: int = 30,
+    ) -> Tuple[Optional[Any],int,int]:
 
         """
         Fetches data from an API endpoint with pagination support.
@@ -33,26 +33,26 @@ class DataConnectors:
         Returns:
             Tuple[Optional[Any], int, int]: (data, next_offset, status_code)
         """
-        if offset is None:
-            raise Exception("offset can not be set to none")
+        if not offset[0] or not limit[0]:
+            raise ValueError("Offset and limit parameter names must be non-empty strings")
 
-        params = {offset[0]: offset[1], limit[0]: min(limit[1], _max_limit)}
+        params = {offset[0]: offset[1], limit[0]: min(max(limit[1],1), _max_limit)}
 
         try:
             async with httpx.AsyncClient() as client:
-                res = await client.get(endpoint, params, timeout=_timeout)
+                res = await client.get(url=endpoint, params=params, timeout=_timeout)
             res.raise_for_status()
             try:
                 json_data = res.json()
-                return json_data, (offset[1] + limit[1]), res.status_code
+                return (json_data, (offset[1] + limit[1]), res.status_code)
             except ValueError as ve:
                 logging.warning(f'Invalid JSON returned from API, returning as text...{ve}')
                 text_data = res.text
-                return text_data, (offset[1] + limit[1]), res.status_code
+                return (text_data, (offset[1] + limit[1]), res.status_code)
 
         except Exception as e:
             logging.exception(f'Error fetching from API: {e}')
-            return
+            return None, offset[1], 500
 
     async def csv_connector(
         self,
@@ -86,7 +86,7 @@ class DataConnectors:
                     if i >= limit: break
                     csv_data.append(row)
 
-            return csv_data,(offset + limit)
+            return (csv_data,(offset + limit))
         except Exception as e:
             logging.exception(f'Error reading from csv {e}')
             return [], None

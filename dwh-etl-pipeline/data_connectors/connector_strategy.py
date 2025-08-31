@@ -22,11 +22,10 @@ class ConnectorStrategy():
         else:
             raise ValueError("Unknown strategy")
 
-    def clear_strategy(self):
+    def teardown(self):
         self.strategy = None
 
-    def execute(self, *args, **kwargs):
+    async def execute(self, *args, **kwargs):
         if not self.strategy:
             raise Exception("Strategy not set")
-
-        return self.strategy(*args, **kwargs)
+        return await self.strategy(*args, **kwargs)
